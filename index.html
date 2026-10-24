@@ -12,16 +12,13 @@
     <meta property="og:image" content="tcm-logo.jpg">
     <link rel="icon" href="tcm-logo.jpg" type="image/jpeg">
 
-    <!-- Hide reveal content only when JS is running, so the page stays readable without it -->
-    <script>document.documentElement.classList.add('js');</script>
-
     <style>
         /* --- CSS VARIABLES & RESET --- */
         :root {
             --bg-white: #ffffff;
             --text-black: #1a1a1a;
             --text-grey: #666666;
-            --accent-light: #f8f9fa;
+            --line: #e6e6e6;
             --font-stack: 'Helvetica Neue', Helvetica, Arial, sans-serif;
         }
 
@@ -34,13 +31,14 @@
             color: var(--text-black);
             font-family: var(--font-stack);
             -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
         }
 
         /* --- TYPOGRAPHY & UTILS --- */
         h1, h2, h3 { line-height: 1.2; font-weight: 700; }
-        h1 { font-size: clamp(2.5rem, 5vw, 4.5rem); margin-bottom: 20px; }
+        h1 { font-size: clamp(2.5rem, 6vw, 5rem); margin-bottom: 20px; }
         h2 { font-size: clamp(1.8rem, 4vw, 2.5rem); text-transform: uppercase; letter-spacing: -0.02em; }
-        p { font-size: 1.1rem; color: var(--text-grey); margin-bottom: 20px; }
+        p { font-size: 1.1rem; color: var(--text-grey); margin-bottom: 20px; line-height: 1.6; }
 
         .container {
             max-width: 800px;
@@ -56,21 +54,18 @@
             text-decoration: none;
             font-weight: 600;
             border-radius: 4px;
-            transition: transform 0.2s ease, background-color 0.2s;
+            transition: background-color 0.2s;
             width: fit-content;
         }
 
         .btn:hover,
-        .btn:focus-visible {
-            transform: translateY(-3px);
-            background-color: #000;
-        }
-
+        .btn:focus-visible { background-color: #000; }
         .btn:focus-visible { outline: 3px solid #666; outline-offset: 3px; }
 
-        /* Non-interactive "coming soon" badge (replaces the dead #-link button) */
         .btn-static {
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
             border: 2px solid var(--text-black);
             color: var(--text-black);
             padding: 13px 28px;
@@ -78,35 +73,53 @@
             border-radius: 4px;
         }
 
-        /* --- SECTIONS & ANIMATIONS --- */
+        .btn-static::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--text-black);
+            animation: pulse 1.8s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.8); opacity: 0.35; }
+        }
+
         section { padding: 80px 0; }
 
-        .section-header { margin-bottom: 40px; border-left: 3px solid var(--text-black); padding-left: 20px; }
+        /* Split-text words (set up by JS; harmless when static) */
+        .w { display: inline-block; overflow: hidden; vertical-align: top; padding-bottom: 0.12em; margin-bottom: -0.12em; }
+        .wi { display: inline-block; }
 
-        /* Reveal animation: only hidden when JS is available */
-        .js .reveal {
+        /* --- PAGE CHROME: progress bar, cursor, header --- */
+        .progress {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            z-index: 200;
+            pointer-events: none;
+        }
+        .progress span {
+            display: block;
+            height: 100%;
+            background: var(--text-black);
+            transform-origin: left center;
+            transform: scaleX(0);
+        }
+
+        .cursor {
+            position: fixed;
+            top: 0; left: 0;
+            width: 28px; height: 28px;
+            border: 1.5px solid var(--text-black);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 300;
             opacity: 0;
-            transform: translateY(50px);
-            transition: opacity 1.2s cubic-bezier(0.2, 0.8, 0.2, 1),
-                        transform 1.2s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
 
-        .js .reveal.active {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-            html { scroll-behavior: auto; }
-            .js .reveal {
-                opacity: 1;
-                transform: none;
-                transition: none;
-            }
-            .btn { transition: none; }
-        }
-
-        /* --- HEADER --- */
         .site-header {
             position: sticky;
             top: 0;
@@ -126,76 +139,156 @@
 
         .header-logo { display: block; width: 48px; height: 48px; }
 
-        /* --- HERO SECTION --- */
+        /* --- HERO --- */
         .hero {
-            min-height: 80vh;
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+            padding: 40px 0 80px;
+        }
+
+        .hero-inner {
+            position: relative;
+            z-index: 1;
+            width: 100%;
             display: flex;
             flex-direction: column;
-            justify-content: center;
             align-items: flex-start;
-            text-align: left;
         }
 
-        .hero-logo {
-            display: block;
-            width: 100%;
-            max-width: 220px;
-            height: auto;
-            margin-bottom: 40px;
+        .hero-logo-wrap { margin-bottom: 40px; }
+        .hero-logo { display: block; width: 100%; max-width: 220px; height: auto; }
+
+        .hero-sub { font-size: 1.2rem; color: var(--text-black); max-width: 600px; }
+
+        .ring {
+            position: absolute;
+            border: 1px solid var(--line);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+        .ring-1 { width: 560px; height: 560px; right: -140px; top: 6%; }
+        .ring-2 { width: 340px; height: 340px; right: 14%; bottom: 4%; }
+        .ring-3 { width: 160px; height: 160px; left: -50px; bottom: 18%; }
+
+        .scroll-cue {
+            position: absolute;
+            left: 50%;
+            bottom: 28px;
+            width: 22px;
+            height: 36px;
+            margin-left: -11px;
+            border: 2px solid var(--text-black);
+            border-radius: 12px;
+            opacity: 0.6;
+        }
+        .scroll-cue::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 6px;
+            width: 3px;
+            height: 7px;
+            margin-left: -1.5px;
+            border-radius: 2px;
+            background: var(--text-black);
+            animation: cue 1.6s ease-in-out infinite;
+        }
+        @keyframes cue {
+            0% { transform: translateY(0); opacity: 1; }
+            100% { transform: translateY(12px); opacity: 0; }
         }
 
-        .hero-sub {
-            font-size: 1.2rem;
-            color: var(--text-black);
-            max-width: 600px;
+        /* --- JOURNEY (pinned counter) --- */
+        .stage {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            padding: 80px 0;
+        }
+        .stage .container { width: 100%; }
+
+        .counter {
+            display: flex;
+            align-items: baseline;
+            gap: 16px;
+            margin: 24px 0 12px;
+            line-height: 0.9;
+        }
+        .counter-num {
+            font-size: clamp(6rem, 24vw, 13rem);
+            font-weight: 800;
+            letter-spacing: -0.05em;
+            font-variant-numeric: tabular-nums;
+        }
+        .counter-unit {
+            font-size: clamp(1.2rem, 3vw, 2rem);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
         }
 
-        /* --- ABOUT / MISSION --- */
+        .stage-bar { height: 3px; background: var(--line); margin: 20px 0 32px; }
+        .stage-bar span { display: block; height: 100%; background: var(--text-black); transform-origin: left center; }
+
+        /* --- VISION (scroll-drawn illustration) --- */
         .mission-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             align-items: center;
             gap: 40px;
         }
-
         .block-spacer { margin-top: 60px; }
 
-        @media (max-width: 768px) {
-            .mission-grid { display: flex; flex-direction: column; text-align: center; }
-        }
-
-        /* --- THE VISION (Looking Up) --- */
-        /* '#' in the data URI is escaped as %23 so the SVG actually renders */
         .vision-visual {
             width: 100%;
-            max-width: 400px;
-            min-height: 300px;
+            max-width: 440px;
             margin-top: 24px;
-            background-color: #ffffff;
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 400 200"><rect width="100%" height="100%" fill="%23ffffff"/><path d="M40,160 Q200,140 360,160 L360,180 Q200,190 40,180 Z" fill="none" stroke="%231a1a1a" stroke-width="2"/><circle cx="200" cy="90" r="60" fill="none" stroke="%231a1a1a" stroke-width="2"/><circle cx="190" cy="100" r="50" fill="%23f4f4f4"/><circle cx="210" cy="80" r="50" fill="%23f4f4f4"/></svg>');
-            background-repeat: no-repeat;
-            background-size: 100% auto;
-            background-position: bottom;
             border: 1px solid #eee;
-            border-radius: 8px;
-            padding: 20px;
+            border-radius: 12px;
+            padding: 24px 24px 8px;
             text-align: center;
         }
+        .vision-visual svg { display: block; width: 100%; height: auto; margin-bottom: 8px; }
+        .vision-visual .draw { fill: none; stroke: var(--text-black); stroke-width: 2; stroke-dasharray: 1; stroke-dashoffset: 0; }
+        .vision-visual .moon { fill: #f4f4f4; }
+        .vision-visual .star { fill: var(--text-black); }
 
-        /* --- PROJECTS / ANNOUNCEMENT --- */
-        .timeline { border-left: 1px solid #eee; padding-left: 20px; margin-top: 30px; }
-        .timeline-item { position: relative; margin-bottom: 40px; padding-left: 20px; }
-        .timeline-item::before {
-            content: '';
-            position: absolute;
-            left: -21px;
-            top: 0;
-            bottom: 0;
-            width: 2px;
-            background: #f0f0f0;
+        /* --- ANNOUNCEMENT (horizontal scroll on desktop) --- */
+        .h-section { padding: 0; }
+        .h-pin { padding: 80px 0; }
+        .h-track {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            padding: 24px 20px;
         }
-        .timeline-item:last-child { margin-bottom: 0; }
-        .timeline-item:last-child::before { display: none; }
+
+        .card {
+            position: relative;
+            flex: none;
+            width: 100%;
+            background: #fff;
+            border: 1px solid #eee;
+            border-radius: 14px;
+            padding: 32px;
+            overflow: hidden;
+        }
+        .card > *:not(.card-num) { position: relative; z-index: 1; }
+        .card h3 { font-size: 1.5rem; margin-bottom: 12px; }
+        .card p { margin-bottom: 0; }
+        .card-num {
+            position: absolute;
+            right: 20px;
+            top: 4px;
+            font-size: 6rem;
+            font-weight: 800;
+            color: #f3f3f3;
+            letter-spacing: -0.05em;
+            pointer-events: none;
+        }
 
         .year-badge {
             background: var(--text-black);
@@ -205,8 +298,34 @@
             text-transform: uppercase;
             letter-spacing: 1px;
             display: inline-block;
-            margin-bottom: 10px;
+            margin-bottom: 14px;
         }
+
+        .h-progress { height: 3px; background: var(--line); }
+        .h-progress span { display: block; height: 100%; background: var(--text-black); transform-origin: left center; transform: scaleX(0); }
+        .h-meta { display: none; }
+
+        .cta { text-align: center; margin-top: 40px; }
+
+        /* Desktop horizontal mode: only switched on by JS when motion is allowed */
+        .anim-h .h-pin {
+            height: 100vh;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 28px;
+            overflow: hidden;
+        }
+        .anim-h .h-track {
+            flex-direction: row;
+            gap: 32px;
+            padding: 24px 20px 24px max(20px, calc((100vw - 800px) / 2 + 20px));
+        }
+        .anim-h .h-pin > .container { width: 100%; }
+        .anim-h .card { width: min(80vw, 440px); min-height: 300px; }
+        .anim-h .h-meta { display: block; }
+        .anim-h .cta { margin-top: 0; }
 
         /* --- FOOTER --- */
         footer {
@@ -218,14 +337,29 @@
         footer p { color: #aaa; font-size: 0.9rem; margin-bottom: 20px; }
         footer p:last-child { margin-bottom: 0; }
 
-        /* --- MOBILE OPTIMIZATION --- */
+        /* --- RESPONSIVE --- */
+        @media (max-width: 768px) {
+            .mission-grid { display: flex; flex-direction: column; text-align: center; }
+            .ring-1 { width: 380px; height: 380px; right: -190px; }
+            .ring-2 { display: none; }
+        }
         @media (max-width: 600px) {
-            h1 { font-size: 2.2rem; }
             section { padding: 50px 0; }
+            .hero { padding: 40px 0 90px; }
+            h1 { font-size: 2.4rem; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            html { scroll-behavior: auto; }
+            .btn { transition: none; }
+            .btn-static::before, .scroll-cue::after { animation: none; }
         }
     </style>
 </head>
 <body>
+
+    <div class="progress" aria-hidden="true"><span></span></div>
+    <div class="cursor" aria-hidden="true"></div>
 
     <!-- Header -->
     <header class="site-header">
@@ -238,104 +372,344 @@
 
     <main id="top">
 
-        <!-- Hero Section -->
-        <section class="container hero reveal">
-            <img class="hero-logo" src="tcm-logo.jpg" width="220" height="220" alt="The Creative Minds logo: two silhouetted profiles looking up">
+        <!-- Hero -->
+        <section class="hero">
+            <div class="ring ring-1" aria-hidden="true"></div>
+            <div class="ring ring-2" aria-hidden="true"></div>
+            <div class="ring ring-3" aria-hidden="true"></div>
 
-            <h1 class="reveal" style="transition-delay: 0.2s;">The Creative Minds.</h1>
-            <p class="hero-sub reveal" style="transition-delay: 0.4s;">
-                Since 2017, we have built the foundation. We are reaching for the horizon.
-                <br><br>
-                &ldquo;Creativity takes courage. Ambition requires a plan.&rdquo;
-            </p>
+            <div class="container hero-inner">
+                <div class="hero-logo-wrap">
+                    <img class="hero-logo" src="tcm-logo.jpg" width="220" height="220" alt="The Creative Minds logo: two silhouetted profiles looking up">
+                </div>
 
-            <a href="#the-future" class="btn reveal" style="transition-delay: 0.6s;">
-                Explore The Announcement
-            </a>
+                <h1 id="hero-title">The Creative Minds.</h1>
+                <p class="hero-sub">
+                    Since 2017, we have built the foundation. We are reaching for the horizon.
+                    <br><br>
+                    &ldquo;Creativity takes courage. Ambition requires a plan.&rdquo;
+                </p>
+
+                <a href="#the-future" class="btn">Explore The Announcement</a>
+            </div>
+
+            <div class="scroll-cue" aria-hidden="true"></div>
         </section>
 
-        <!-- About Us Section -->
-        <section class="container reveal" id="about">
-            <div class="mission-grid">
-                <h2>Our Journey (2017 &ndash; Present)</h2>
-                <p>We are a collective of builders, thinkers, and dreamers. Since 2017, our focus has always been on execution, quality, and the future of digital creation. We don't just code; we orchestrate ideas into reality.</p>
-            </div>
-
-            <!-- The Anticipation Build -->
-            <div class="block-spacer">
-                <h2>Reaching For The Future</h2>
-                <div class="vision-visual">
-                    <h3 style="color: var(--text-black)">Next</h3>
-                    <p style="margin-top: 10px">The Collective is releasing something public.</p>
+        <!-- Journey: pinned year counter -->
+        <section class="stage" id="about">
+            <div class="container">
+                <h2 data-split>Our Journey (2017 &ndash; Present)</h2>
+                <div class="counter" aria-label="Years of building">
+                    <span class="counter-num" id="years">9</span>
+                    <span class="counter-unit">years</span>
                 </div>
+                <div class="stage-bar" aria-hidden="true"><span></span></div>
+                <p class="stage-text">We are a collective of builders, thinkers, and dreamers. Since 2017, our focus has always been on execution, quality, and the future of digital creation. We don't just code; we orchestrate ideas into reality.</p>
+            </div>
+        </section>
+
+        <!-- Vision -->
+        <section class="container" id="vision">
+            <h2 data-split>Reaching For The Future</h2>
+
+            <div class="vision-visual" data-reveal>
+                <svg viewBox="0 0 400 220" role="img" aria-label="Illustration of a moon rising over a horizon">
+                    <circle class="star" cx="50" cy="40" r="2"/>
+                    <circle class="star" cx="120" cy="22" r="2"/>
+                    <circle class="star" cx="300" cy="34" r="2"/>
+                    <circle class="star" cx="352" cy="74" r="2"/>
+                    <circle class="star" cx="76" cy="96" r="2"/>
+                    <circle class="star" cx="334" cy="128" r="2"/>
+                    <path class="draw" pathLength="1" d="M40,170 Q200,150 360,170 L360,190 Q200,200 40,190 Z"/>
+                    <circle class="draw" pathLength="1" cx="200" cy="100" r="60"/>
+                    <g class="rise">
+                        <circle class="moon" cx="190" cy="110" r="50"/>
+                        <circle class="moon" cx="210" cy="90" r="50"/>
+                    </g>
+                </svg>
+                <h3>Next</h3>
+                <p style="margin-top: 10px">The Collective is releasing something public.</p>
             </div>
 
-            <div class="mission-grid block-spacer">
+            <div class="mission-grid block-spacer" data-reveal>
                 <h3>The Goal</h3>
                 <p>To lead the next generation of digital tools and build something that endures, for our team and for our families. This platform is the bridge between our ambition and the people we build it for.</p>
             </div>
         </section>
 
-        <!-- The Public Release Section -->
-        <section class="container reveal" id="the-future">
-            <h2>The Announcement</h2>
-            <div class="timeline">
-
-                <div class="timeline-item reveal">
-                    <span class="year-badge">2017 &ndash; 2024</span>
-                    <h3>The Foundation</h3>
-                    <p>Behind the scenes. Building systems, defining our identity, and nurturing our craft through private beta projects.</p>
+        <!-- Announcement: horizontal scroll on desktop -->
+        <section class="h-section" id="the-future">
+            <div class="h-pin">
+                <div class="container" style="padding-bottom: 0;">
+                    <h2 data-split>The Announcement</h2>
                 </div>
 
-                <div class="timeline-item reveal">
-                    <span class="year-badge">Next</span>
-                    <h3>The Public Release</h3>
-                    <p><strong>Coming Soon.</strong> This is where we take everything we've built, our values, and our technical expertise to create something for the world.</p>
+                <div class="h-track">
+                    <article class="card">
+                        <span class="card-num" aria-hidden="true">01</span>
+                        <span class="year-badge">2017 &ndash; 2024</span>
+                        <h3>The Foundation</h3>
+                        <p>Behind the scenes. Building systems, defining our identity, and nurturing our craft through private beta projects.</p>
+                    </article>
+
+                    <article class="card">
+                        <span class="card-num" aria-hidden="true">02</span>
+                        <span class="year-badge">Next</span>
+                        <h3>The Public Release</h3>
+                        <p><strong>Coming Soon.</strong> This is where we take everything we've built, our values, and our technical expertise to create something for the world.</p>
+                    </article>
+
+                    <article class="card">
+                        <span class="card-num" aria-hidden="true">03</span>
+                        <span class="year-badge">In Progress</span>
+                        <h3>Prioritizing Life &amp; Balance</h3>
+                        <p>While the code is written, we prioritize our health and family. We are ready for the next phase.</p>
+                    </article>
                 </div>
 
-                <div class="timeline-item reveal">
-                    <span class="year-badge">In Progress</span>
-                    <h3>Prioritizing Life &amp; Balance</h3>
-                    <p>While the code is written, we prioritize our health and family. We are ready for the next phase.</p>
+                <div class="container h-meta" style="padding-top: 0; padding-bottom: 0;">
+                    <div class="h-progress" aria-hidden="true"><span></span></div>
                 </div>
 
-            </div>
-
-            <div style="text-align: center; margin-top: 50px;">
-                <!-- TODO: swap for a real sign-up form (e.g. Formspree, Buttondown) when ready -->
-                <span class="btn-static reveal">Launching soon</span>
+                <div class="cta" data-reveal>
+                    <!-- TODO: swap for a real sign-up form (e.g. Formspree, Buttondown) when ready -->
+                    <span class="btn-static">Launching soon</span>
+                </div>
             </div>
         </section>
 
     </main>
 
-    <!-- Footer -->
-    <footer class="reveal">
-        <p>&copy; 2017 &ndash; Present. The Creative Minds.</p>
-        <p>Built with ambition and a focus on the future.</p>
+    <footer>
+        <div class="footer-inner">
+            <p>&copy; 2017 &ndash; Present. The Creative Minds.</p>
+            <p>Built with ambition and a focus on the future.</p>
+        </div>
     </footer>
 
+    <!-- GSAP + ScrollTrigger. If these fail to load, the page stays fully visible and static. -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
     <script>
-        // Reveal on scroll: IntersectionObserver, with a visible-by-default fallback
-        (function () {
-            var items = document.querySelectorAll('.reveal');
+    (function () {
+        if (!window.gsap || !window.ScrollTrigger) return;
 
-            if (!('IntersectionObserver' in window)) {
-                items.forEach(function (el) { el.classList.add('active'); });
-                return;
-            }
+        gsap.registerPlugin(ScrollTrigger);
 
-            var observer = new IntersectionObserver(function (entries) {
-                entries.forEach(function (entry) {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('active');
-                        observer.unobserve(entry.target);
+        var root = document.documentElement;
+        var START_YEAR = 2017;
+        var years = new Date().getFullYear() - START_YEAR;
+        var yearsEl = document.getElementById('years');
+        yearsEl.textContent = years;
+
+        // Wrap each word of [data-split] / hero title in masks so words can slide up
+        function splitWords(el) {
+            if (el.dataset.splitDone) return;
+            var text = el.textContent.trim();
+            el.setAttribute('aria-label', text);
+            el.textContent = '';
+            text.split(/\s+/).forEach(function (word, i, all) {
+                var mask = document.createElement('span');
+                mask.className = 'w';
+                mask.setAttribute('aria-hidden', 'true');
+                var inner = document.createElement('span');
+                inner.className = 'wi';
+                inner.textContent = word;
+                mask.appendChild(inner);
+                el.appendChild(mask);
+                if (i < all.length - 1) el.appendChild(document.createTextNode(' '));
+            });
+            el.dataset.splitDone = '1';
+        }
+
+        var mm = gsap.matchMedia();
+
+        mm.add({
+            motion: '(prefers-reduced-motion: no-preference)',
+            desktop: '(min-width: 769px)',
+            fine: '(hover: hover) and (pointer: fine)'
+        }, function (ctx) {
+            var c = ctx.conditions;
+            if (!c.motion) return; // reduced motion: leave the page static and visible
+
+            var ac = new AbortController();
+            var opts = { signal: ac.signal };
+            var headings = gsap.utils.toArray('[data-split]');
+            var heroTitle = document.getElementById('hero-title');
+            splitWords(heroTitle);
+            headings.forEach(splitWords);
+
+            /* ---------- Scroll progress bar ---------- */
+            gsap.to('.progress span', {
+                scaleX: 1, ease: 'none',
+                scrollTrigger: { start: 0, end: 'max', scrub: 0.2 }
+            });
+
+            /* ---------- Header hides on scroll down, returns on scroll up ---------- */
+            var headerHidden = false;
+            ScrollTrigger.create({
+                start: 0, end: 'max',
+                onUpdate: function (self) {
+                    var hide = self.direction === 1 && self.scroll() > 160;
+                    if (hide !== headerHidden) {
+                        headerHidden = hide;
+                        gsap.to('.site-header', { yPercent: hide ? -110 : 0, duration: 0.35, ease: 'power2.out', overwrite: true });
+                    }
+                }
+            });
+
+            /* ---------- Hero: intro timeline + parallax ---------- */
+            gsap.timeline({ defaults: { ease: 'power4.out' } })
+                .from('.hero-logo', { scale: 0.5, opacity: 0, rotate: -25, duration: 1.3 })
+                .from('#hero-title .wi', { yPercent: 115, duration: 1, stagger: 0.12 }, '-=0.8')
+                .from('.hero-sub', { y: 30, opacity: 0, duration: 0.9 }, '-=0.6')
+                .from('.hero .btn', { y: 30, opacity: 0, duration: 0.8 }, '-=0.6')
+                .from('.scroll-cue', { opacity: 0, duration: 0.8 }, '-=0.3');
+
+            var heroST = { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true };
+            gsap.to('.hero-logo-wrap', { yPercent: -45, rotate: 18, ease: 'none', scrollTrigger: heroST });
+            gsap.to('.ring-1', { yPercent: -35, scale: 1.25, ease: 'none', scrollTrigger: heroST });
+            gsap.to('.ring-2', { yPercent: 55, ease: 'none', scrollTrigger: heroST });
+            gsap.to('.ring-3', { yPercent: -80, xPercent: 40, ease: 'none', scrollTrigger: heroST });
+            gsap.to('.hero-inner > :not(.hero-logo-wrap)', { y: -60, opacity: 0.1, ease: 'none',
+                scrollTrigger: { trigger: '.hero', start: '40% top', end: 'bottom top', scrub: true } });
+            gsap.to('.scroll-cue', { opacity: 0, scrollTrigger: { trigger: '.hero', start: '5% top', end: '20% top', scrub: true } });
+
+            /* ---------- Journey: pinned scene, counting up years as you scroll ---------- */
+            var counter = { v: 0 };
+            yearsEl.textContent = 0;
+            gsap.timeline({
+                scrollTrigger: {
+                    trigger: '.stage', start: 'top top',
+                    end: c.desktop ? '+=130%' : '+=90%',
+                    pin: true, scrub: 0.6, anticipatePin: 1
+                }
+            })
+                .from('.stage h2 .wi', { yPercent: 115, duration: 0.8, stagger: 0.1, ease: 'power3.out' }, 0)
+                .to(counter, { v: years, duration: 3, ease: 'none',
+                    onUpdate: function () { yearsEl.textContent = Math.round(counter.v); } }, 0)
+                .from('.stage-bar span', { scaleX: 0, duration: 3, ease: 'none' }, 0)
+                .from('.counter-unit', { opacity: 0, x: -30, duration: 1 }, 0.2)
+                .from('.stage-text', { opacity: 0, y: 40, duration: 1.2 }, 1.2);
+
+            /* ---------- Generic reveals ---------- */
+            headings.filter(function (h) { return !h.closest('.stage'); }).forEach(function (h) {
+                gsap.from(h.querySelectorAll('.wi'), {
+                    yPercent: 115, duration: 0.9, stagger: 0.09, ease: 'power4.out',
+                    scrollTrigger: { trigger: h, start: 'top 88%', once: true }
+                });
+            });
+
+            var revealTargets = '[data-reveal]';
+            gsap.set(revealTargets, { opacity: 0, y: 50 });
+            ScrollTrigger.batch(revealTargets, {
+                start: 'top 90%', once: true,
+                onEnter: function (batch) {
+                    gsap.to(batch, { opacity: 1, y: 0, duration: 1, stagger: 0.12, ease: 'power3.out', overwrite: true });
+                }
+            });
+
+            /* ---------- Vision: drawing illustration + moon rises + stars twinkle in ---------- */
+            var visionST = { trigger: '.vision-visual', start: 'top 85%', end: 'bottom 45%', scrub: 0.8 };
+            gsap.fromTo('.vision-visual .draw', { strokeDashoffset: 1 }, { strokeDashoffset: 0, ease: 'none', stagger: 0.25, scrollTrigger: visionST });
+            gsap.from('.vision-visual .rise', { y: 70, opacity: 0, ease: 'none', scrollTrigger: visionST });
+            gsap.from('.vision-visual .star', { scale: 0, transformOrigin: '50% 50%', stagger: 0.15, ease: 'back.out(3)', scrollTrigger: visionST });
+
+            /* ---------- Announcement ---------- */
+            var cards = gsap.utils.toArray('.card');
+            if (c.desktop) {
+                // Pin the section and slide the cards sideways as the page scrolls
+                root.classList.add('anim-h');
+                var track = document.querySelector('.h-track');
+                var dist = function () {
+                    return track.scrollWidth - window.innerWidth + parseFloat(getComputedStyle(track).paddingLeft);
+                };
+                gsap.timeline({
+                    scrollTrigger: {
+                        trigger: '.h-pin', start: 'top top',
+                        end: function () { return '+=' + dist(); },
+                        pin: true, scrub: 0.6, anticipatePin: 1, invalidateOnRefresh: true
+                    }
+                })
+                    .to(track, { x: function () { return -dist(); }, ease: 'none' }, 0)
+                    .to('.h-progress span', { scaleX: 1, ease: 'none' }, 0);
+
+                gsap.set('.h-pin .cta', { opacity: 0, y: 30 });
+                ScrollTrigger.create({
+                    trigger: '.h-pin', start: 'top top', end: 'bottom top',
+                    onEnter: function () { gsap.to('.h-pin .cta', { opacity: 1, y: 0, duration: 0.9, delay: 0.2, ease: 'power3.out' }); }
+                });
+            } else {
+                // Phones/tablets: cards stack and rise in one by one
+                gsap.set(cards, { opacity: 0, y: 60 });
+                ScrollTrigger.batch(cards, {
+                    start: 'top 90%', once: true,
+                    onEnter: function (batch) {
+                        gsap.to(batch, { opacity: 1, y: 0, duration: 0.9, stagger: 0.15, ease: 'power3.out', overwrite: true });
                     }
                 });
-            }, { threshold: 0.1, rootMargin: '0px 0px -10% 0px' });
+            }
 
-            items.forEach(function (el) { observer.observe(el); });
-        })();
+            /* ---------- Footer ---------- */
+            gsap.from('.footer-inner', {
+                y: -50, opacity: 0, ease: 'none',
+                scrollTrigger: { trigger: 'footer', start: 'top bottom', end: 'bottom bottom', scrub: true }
+            });
+
+            /* ---------- Pointer interactions (mouse only) ---------- */
+            if (c.fine) {
+                var cur = document.querySelector('.cursor');
+                gsap.set(cur, { xPercent: -50, yPercent: -50 });
+                var xTo = gsap.quickTo(cur, 'x', { duration: 0.35, ease: 'power3' });
+                var yTo = gsap.quickTo(cur, 'y', { duration: 0.35, ease: 'power3' });
+                var shown = false;
+                window.addEventListener('pointermove', function (e) {
+                    xTo(e.clientX); yTo(e.clientY);
+                    if (!shown) { shown = true; gsap.to(cur, { opacity: 1, duration: 0.3 }); }
+                }, opts);
+                document.addEventListener('pointerleave', function () { shown = false; gsap.to(cur, { opacity: 0, duration: 0.2 }); }, opts);
+
+                document.querySelectorAll('a, .btn, .card').forEach(function (el) {
+                    el.addEventListener('pointerenter', function () { gsap.to(cur, { scale: 2.4, duration: 0.3 }); }, opts);
+                    el.addEventListener('pointerleave', function () { gsap.to(cur, { scale: 1, duration: 0.3 }); }, opts);
+                });
+
+                // Magnetic buttons
+                document.querySelectorAll('.btn').forEach(function (btn) {
+                    btn.addEventListener('pointermove', function (e) {
+                        var r = btn.getBoundingClientRect();
+                        gsap.to(btn, { x: (e.clientX - r.left - r.width / 2) * 0.3, y: (e.clientY - r.top - r.height / 2) * 0.4, duration: 0.3 });
+                    }, opts);
+                    btn.addEventListener('pointerleave', function () {
+                        gsap.to(btn, { x: 0, y: 0, duration: 0.7, ease: 'elastic.out(1, 0.4)' });
+                    }, opts);
+                });
+
+                // 3D tilt on cards
+                cards.forEach(function (card) {
+                    card.addEventListener('pointermove', function (e) {
+                        var r = card.getBoundingClientRect();
+                        var px = (e.clientX - r.left) / r.width - 0.5;
+                        var py = (e.clientY - r.top) / r.height - 0.5;
+                        gsap.to(card, { rotationY: px * 12, rotationX: -py * 12, transformPerspective: 800, duration: 0.4, ease: 'power2.out' });
+                    }, opts);
+                    card.addEventListener('pointerleave', function () {
+                        gsap.to(card, { rotationX: 0, rotationY: 0, duration: 0.6, ease: 'power3.out' });
+                    }, opts);
+                });
+            }
+
+            // Cleanup if the media conditions change (resize / reduced-motion toggled)
+            return function () {
+                ac.abort();
+                root.classList.remove('anim-h');
+                yearsEl.textContent = years;
+            };
+        });
+
+        window.addEventListener('load', function () { ScrollTrigger.refresh(); });
+    })();
     </script>
 </body>
 </html>
