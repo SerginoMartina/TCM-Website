@@ -4,6 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Creative Minds | A New Era</title>
+    <meta name="description" content="The Creative Minds: a collective of builders and thinkers, creating digital tools since 2017. Something public is on the way.">
+    <meta name="theme-color" content="#ffffff">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="The Creative Minds | A New Era">
+    <meta property="og:description" content="Since 2017, we have built the foundation. We are reaching for the horizon.">
+    <meta property="og:image" content="tcm-logo.jpg">
+    <link rel="icon" href="tcm-logo.jpg" type="image/jpeg">
+
+    <!-- Hide reveal content only when JS is running, so the page stays readable without it -->
+    <script>document.documentElement.classList.add('js');</script>
+
     <style>
         /* --- CSS VARIABLES & RESET --- */
         :root {
@@ -16,6 +27,8 @@
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
+        html { scroll-behavior: smooth; }
+
         body {
             background-color: var(--bg-white);
             color: var(--text-black);
@@ -25,9 +38,9 @@
 
         /* --- TYPOGRAPHY & UTILS --- */
         h1, h2, h3 { line-height: 1.2; font-weight: 700; }
-        h1 { font-size: clamp(2.5rem, 5vw, 4.5rem); }
-        h2 { font-size: clamp(1.8rem, 4vw, 2.5rem); text-transform: uppercase; letter-spacing: -0.05em;}
-        p { font-size: 1.1rem; color: var(--text-grey); margin-bottom: 20px;}
+        h1 { font-size: clamp(2.5rem, 5vw, 4.5rem); margin-bottom: 20px; }
+        h2 { font-size: clamp(1.8rem, 4vw, 2.5rem); text-transform: uppercase; letter-spacing: -0.02em; }
+        p { font-size: 1.1rem; color: var(--text-grey); margin-bottom: 20px; }
 
         .container {
             max-width: 800px;
@@ -47,37 +60,88 @@
             width: fit-content;
         }
 
-        .btn:hover {
+        .btn:hover,
+        .btn:focus-visible {
             transform: translateY(-3px);
-            background-color: #000; /* Slight darkening */
+            background-color: #000;
+        }
+
+        .btn:focus-visible { outline: 3px solid #666; outline-offset: 3px; }
+
+        /* Non-interactive "coming soon" badge (replaces the dead #-link button) */
+        .btn-static {
+            display: inline-block;
+            border: 2px solid var(--text-black);
+            color: var(--text-black);
+            padding: 13px 28px;
+            font-weight: 600;
+            border-radius: 4px;
         }
 
         /* --- SECTIONS & ANIMATIONS --- */
-        section { padding: 80px 0; min-height: 120vh; display: flex; align-items: center; }
-        
-        .section-header { margin-bottom: 40px; border-left: 3px solid var(--text-black); padding-left: 20px;}
+        section { padding: 80px 0; }
 
-        /* The Reveal Animation Class */
-        .reveal {
+        .section-header { margin-bottom: 40px; border-left: 3px solid var(--text-black); padding-left: 20px; }
+
+        /* Reveal animation: only hidden when JS is available */
+        .js .reveal {
             opacity: 0;
             transform: translateY(50px);
-            transition: all 1.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+            transition: opacity 1.2s cubic-bezier(0.2, 0.8, 0.2, 1),
+                        transform 1.2s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
 
-        .reveal.active {
+        .js .reveal.active {
             opacity: 1;
             transform: translateY(0);
         }
 
+        @media (prefers-reduced-motion: reduce) {
+            html { scroll-behavior: auto; }
+            .js .reveal {
+                opacity: 1;
+                transform: none;
+                transition: none;
+            }
+            .btn { transition: none; }
+        }
+
+        /* --- HEADER --- */
+        .site-header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(255, 255, 255, 0.9);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+        }
+
+        .site-header .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 12px;
+            padding-bottom: 12px;
+        }
+
+        .header-logo { display: block; width: 48px; height: 48px; }
+
         /* --- HERO SECTION --- */
-        .hero { min-height: 80vh; flex-direction: column; justify-content: center; text-align: left;}
-        
+        .hero {
+            min-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+            text-align: left;
+        }
+
         .hero-logo {
-            width: 100%; 
-            max-width: 300px;
+            display: block;
+            width: 100%;
+            max-width: 220px;
             height: auto;
             margin-bottom: 40px;
-            filter: drop-shadow(2px 5px 5px rgba(0,0,0,0.05));
         }
 
         .hero-sub {
@@ -89,30 +153,38 @@
         /* --- ABOUT / MISSION --- */
         .mission-grid {
             display: grid;
-            grid-template-columns: 1fr auto 1fr;
+            grid-template-columns: 1fr 1fr;
             align-items: center;
             gap: 40px;
         }
 
+        .block-spacer { margin-top: 60px; }
+
         @media (max-width: 768px) {
-            .mission-grid { display: flex; flex-direction: column; text-align: center;}
+            .mission-grid { display: flex; flex-direction: column; text-align: center; }
         }
 
         /* --- THE VISION (Looking Up) --- */
+        /* '#' in the data URI is escaped as %23 so the SVG actually renders */
         .vision-visual {
             width: 100%;
             max-width: 400px;
-            height: 300px;
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 400 200"><rect width="100%" height="100%" fill="#ffffff"/><path d="M40,160 Q200,140 360,160 L360,180 Q200,190 40,180 Z" fill="none" stroke="#1a1a1a" stroke-width="2"/><circle cx="200" cy="90" r="60" fill="none" stroke="#1a1a1a" stroke-width="2"/><circle cx="190" cy="100" r="50" fill="#f4f4f4"/><circle cx="210" cy="80" r="50" fill="#f4f4f4"/></svg>');
-            background-size: cover;
+            min-height: 300px;
+            margin-top: 24px;
+            background-color: #ffffff;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 400 200"><rect width="100%" height="100%" fill="%23ffffff"/><path d="M40,160 Q200,140 360,160 L360,180 Q200,190 40,180 Z" fill="none" stroke="%231a1a1a" stroke-width="2"/><circle cx="200" cy="90" r="60" fill="none" stroke="%231a1a1a" stroke-width="2"/><circle cx="190" cy="100" r="50" fill="%23f4f4f4"/><circle cx="210" cy="80" r="50" fill="%23f4f4f4"/></svg>');
+            background-repeat: no-repeat;
+            background-size: 100% auto;
+            background-position: bottom;
+            border: 1px solid #eee;
             border-radius: 8px;
             padding: 20px;
             text-align: center;
         }
 
         /* --- PROJECTS / ANNOUNCEMENT --- */
-        .timeline { border-left: 1px solid #eee; padding-left: 20px; }
-        .timeline-item { position: relative; margin-bottom: 40px; padding-left: 20px;}
+        .timeline { border-left: 1px solid #eee; padding-left: 20px; margin-top: 30px; }
+        .timeline-item { position: relative; margin-bottom: 40px; padding-left: 20px; }
         .timeline-item::before {
             content: '';
             position: absolute;
@@ -122,6 +194,8 @@
             width: 2px;
             background: #f0f0f0;
         }
+        .timeline-item:last-child { margin-bottom: 0; }
+        .timeline-item:last-child::before { display: none; }
 
         .year-badge {
             background: var(--text-black);
@@ -141,151 +215,127 @@
             padding: 60px 20px;
             text-align: center;
         }
-        footer p { color: #aaa; font-size: 0.9rem; margin-bottom: 20px;}
+        footer p { color: #aaa; font-size: 0.9rem; margin-bottom: 20px; }
+        footer p:last-child { margin-bottom: 0; }
 
         /* --- MOBILE OPTIMIZATION --- */
         @media (max-width: 600px) {
             h1 { font-size: 2.2rem; }
-            section { padding: 50px 0; min-height: auto;}
+            section { padding: 50px 0; }
         }
     </style>
 </head>
 <body>
 
-    <!-- Header / Navigation -->
-    <header style="padding: 20px; position: sticky; top: 0; background: rgba(255,255,255,0.9); backdrop-filter: blur(10px); z-index: 100;">
-        <div class="container" style="display:flex; justify-content:space-between; align-items:center;">
-            <!-- SVG Logo Representation -->
-            <svg class="hero-logo" viewBox="0 0 240 150" style="width:60px;">
-                <!-- Abstract Logo Concept -->
-                <defs>
-                    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%" style="stop-color:#666;stop-opacity:1" />
-                        <stop offset="100%" style="stop-color:#1a1a1a;stop-opacity:1" />
-                    </linearGradient>
-                </defs>
-                <path d="M30,120 Q80,110 150,130 T240,125" fill="none" stroke="#1a1a1a" stroke-width="3" />
-                <circle cx="50" cy="80" r="20" fill="#1a1a1a" />
-                <circle cx="200" cy="85" r="15" fill="#1a1a1a" />
-                <path d="M40,80 L65,50 L90,80" fill="none" stroke="#1a1a1a" stroke-width="3"/>
-            </svg>
+    <!-- Header -->
+    <header class="site-header">
+        <div class="container">
+            <a href="#top" aria-label="The Creative Minds, back to top">
+                <img class="header-logo" src="tcm-logo.jpg" width="48" height="48" alt="The Creative Minds logo">
+            </a>
         </div>
     </header>
 
-    <!-- Hero Section -->
-    <section class="container hero reveal">
-        <div>
-            <!-- LOGO SVG INSERTION HERE -->
-            <svg class="hero-logo" viewBox="0 0 240 150">
-                <defs>
-                    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%" style="stop-color:#333;stop-opacity:1" />
-                        <stop offset="100%" style="stop-color:#000;stop-opacity:1" />
-                    </linearGradient>
-                </defs>
-                <!-- Creative Shape: Look Up -->
-                <path d="M30,120 Q80,110 150,130 T240,125" fill="none" stroke="#1a1a1a" stroke-width="6" />
-                <circle cx="60" cy="75" r="25" fill="#1a1a1a" />
-                <circle cx="180" cy="95" r="20" fill="#1a1a1a" />
-                <path d="M45,70 L65,35 L95,72" fill="none" stroke="#1a1a1a" stroke-width="4"/>
-                <text x="60" y="50" font-family="var(--font-stack)" font-size="24" fill="#eee">TM</text>
-            </svg>
-        </div>
-        
-        <h1 class="reveal" style="transition-delay: 0.2s;">The Creative Minds.</h1>
-        <p class="hero-sub reveal" style="transition-delay: 0.4s;">
-            <br>
-            Since 2017, we have built the foundation. We are reaching for the horizon.
-            <br><br>
-            "Creativity takes courage. Ambition requires a plan."
-        </p>
+    <main id="top">
 
-        <a href="#the-future" class="btn reveal" style="transition-delay: 0.6s;">
-            Explore The Announcement
-        </a>
-    </section>
+        <!-- Hero Section -->
+        <section class="container hero reveal">
+            <img class="hero-logo" src="tcm-logo.jpg" width="220" height="220" alt="The Creative Minds logo: two silhouetted profiles looking up">
 
-    <!-- About Us Section -->
-    <section class="container reveal">
-        <div class="mission-grid">
-            <h2>Our Journey (2017 - Present)</h2>
-            <p>We are a collective of builders, thinkers, and dreamers. Over the last seven years, our focus has always been on execution, quality, and the future of digital creation. We don't just code; we orchestrate ideas into reality.</p>
-        </div>
+            <h1 class="reveal" style="transition-delay: 0.2s;">The Creative Minds.</h1>
+            <p class="hero-sub reveal" style="transition-delay: 0.4s;">
+                Since 2017, we have built the foundation. We are reaching for the horizon.
+                <br><br>
+                &ldquo;Creativity takes courage. Ambition requires a plan.&rdquo;
+            </p>
 
-        <br><br>
+            <a href="#the-future" class="btn reveal" style="transition-delay: 0.6s;">
+                Explore The Announcement
+            </a>
+        </section>
 
-        <!-- The Anticipation Build -->
-        <h2>Reaching For The Future</h2>
-        <div class="vision-visual">
-            <!-- Placeholder for the new project visual -->
-            <h3 style="color:var(--text-black)">2025 / 2026</h3>
-            <p style="margin-top:10px">The Collective is releasing something public.</p>
-        </div>
-        
-        <div class="mission-grid" style="margin-top: 40px;">
-            <h3>The Goal</h3>
-            <p>To provide for our family, to lead the next generation of digital tools, and to build wealth that endures. This platform is the bridge between our ambition and our family.</p>
-        </div>
-    </section>
-
-    <!-- The Public Release Section -->
-    <section class="container reveal" id="the-future">
-        <h2 style="border-left:none; padding-left:0;">The Announcement</h2>
-        <div class="timeline">
-            
-            <div class="timeline-item reveal">
-                <span class="year-badge">2017 - 2024</span>
-                <h3>The Foundation</h3>
-                <p>Beyond the scenes. Building systems, defining our identity, and nurturing our craft through private beta projects.</p>
+        <!-- About Us Section -->
+        <section class="container reveal" id="about">
+            <div class="mission-grid">
+                <h2>Our Journey (2017 &ndash; Present)</h2>
+                <p>We are a collective of builders, thinkers, and dreamers. Since 2017, our focus has always been on execution, quality, and the future of digital creation. We don't just code; we orchestrate ideas into reality.</p>
             </div>
 
-            <div class="timeline-item reveal">
-                <span class="year-badge">2025 - 2026</span>
-                <h3>The Public Release</h3>
-                <p><strong>Coming Soon.</strong> This is where we take everything we've built, our family values, and our technical expertise to create something for the world.</p>
+            <!-- The Anticipation Build -->
+            <div class="block-spacer">
+                <h2>Reaching For The Future</h2>
+                <div class="vision-visual">
+                    <h3 style="color: var(--text-black)">Next</h3>
+                    <p style="margin-top: 10px">The Collective is releasing something public.</p>
+                </div>
             </div>
 
-            <div class="timeline-item reveal" style="border:none;">
-                <span class="year-badge">In Progress</span>
-                <h3>Prioritizing Life & Wealth</h3>
-                <p>While the code is written, we prioritize our health (from 115kg to 90kg) and family. We are ready for the next phase.</p>
+            <div class="mission-grid block-spacer">
+                <h3>The Goal</h3>
+                <p>To lead the next generation of digital tools and build something that endures, for our team and for our families. This platform is the bridge between our ambition and the people we build it for.</p>
+            </div>
+        </section>
+
+        <!-- The Public Release Section -->
+        <section class="container reveal" id="the-future">
+            <h2>The Announcement</h2>
+            <div class="timeline">
+
+                <div class="timeline-item reveal">
+                    <span class="year-badge">2017 &ndash; 2024</span>
+                    <h3>The Foundation</h3>
+                    <p>Behind the scenes. Building systems, defining our identity, and nurturing our craft through private beta projects.</p>
+                </div>
+
+                <div class="timeline-item reveal">
+                    <span class="year-badge">Next</span>
+                    <h3>The Public Release</h3>
+                    <p><strong>Coming Soon.</strong> This is where we take everything we've built, our values, and our technical expertise to create something for the world.</p>
+                </div>
+
+                <div class="timeline-item reveal">
+                    <span class="year-badge">In Progress</span>
+                    <h3>Prioritizing Life &amp; Balance</h3>
+                    <p>While the code is written, we prioritize our health and family. We are ready for the next phase.</p>
+                </div>
+
             </div>
 
-        </div>
+            <div style="text-align: center; margin-top: 50px;">
+                <!-- TODO: swap for a real sign-up form (e.g. Formspree, Buttondown) when ready -->
+                <span class="btn-static reveal">Launching soon</span>
+            </div>
+        </section>
 
-        <div style="text-align: center; margin-top: 50px;">
-            <a href="#" class="btn reveal">Notify Me When Launching</a>
-        </div>
-    </section>
+    </main>
 
     <!-- Footer -->
-    <footer class="container reveal">
-        <p>&copy; 2017 - Present. The Creative Minds.</p>
+    <footer class="reveal">
+        <p>&copy; 2017 &ndash; Present. The Creative Minds.</p>
         <p>Built with ambition and a focus on the future.</p>
     </footer>
 
     <script>
-        // Simple Reveal on Scroll Logic
-        function reveal() {
-            var reveals = document.querySelectorAll(".reveal");
+        // Reveal on scroll: IntersectionObserver, with a visible-by-default fallback
+        (function () {
+            var items = document.querySelectorAll('.reveal');
 
-            for (var i = 0; i < reveals.length; i++) {
-                var windowHeight = window.innerHeight;
-                var elementTop = reveals[i].offsetTop;
-                var elementVisible = 150;
-
-                if (elementTop < windowHeight - elementVisible) {
-                    reveals[i].classList.add("active");
-                } else {
-                    // Note: We don't remove the class to ensure it's always visible, 
-                    // but this logic handles the entry.
-                }
+            if (!('IntersectionObserver' in window)) {
+                items.forEach(function (el) { el.classList.add('active'); });
+                return;
             }
-        }
 
-        window.addEventListener("scroll", reveal);
-        // Trigger once on load
-        reveal();
+            var observer = new IntersectionObserver(function (entries) {
+                entries.forEach(function (entry) {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('active');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.1, rootMargin: '0px 0px -10% 0px' });
+
+            items.forEach(function (el) { observer.observe(el); });
+        })();
     </script>
 </body>
 </html>
